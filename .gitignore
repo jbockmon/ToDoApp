@@ -1,3 +1,5 @@
 /playground
 /node_modules
+/database
 server/config/config.json
+server/.directory
