@@ -16,6 +16,7 @@ describe('POST /todos', () => {
 
       request(app)
          .post('/todos')
+         .set('Host', 'api.jotdo.com:3000')
          .set('x-auth', users[0].tokens[0].token)
          .send({text})
          .expect(200)
@@ -35,41 +36,43 @@ describe('POST /todos', () => {
 
             } catch (e) {
               done(e);
-            }
-            
-
-            
+            }   
          });
    });
+
+   it('should not create todo with invalid body data', (done) => {
+    var text = {};
+  
+    request(app)
+        .post('/todos')
+        .set('Host', 'api.jotdo.com:3000')
+        .set('x-auth', users[0].tokens[0].token)
+        .send(text)
+        .expect(400)
+        .end(async (err, res) => {
+          if (err) {
+              return done(err);
+          }
+          
+          try {
+            const todos = await Todo.find();
+            expect(todos.length).toBe(2);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+    });
+
   });
 
-it('should not create todo with invalid body data', (done) => {
-  var text = {};
 
-  request(app)
-      .post('/todos')
-      .set('x-auth', users[0].tokens[0].token)
-      .send(text)
-      .expect(400)
-      .end(async (err, res) => {
-        if (err) {
-            return done(err);
-        }
-        
-        try {
-          const todos = await Todo.find();
-          expect(todos.length).toBe(2);
-          done();
-        } catch (e) {
-          done(e);
-        }
-      });
-});
 
 describe('GET /todos', ()=> {
   it('should get all todos', (done) => {
       request(app)
         .get('/todos')
+        .set('Host', 'api.jotdo.com:3000')
         .set('x-auth', users[0].tokens[0].token)
         .expect(200)
         .expect((res) => {
@@ -83,6 +86,7 @@ describe('GET /todos/:id', () => {
   it('should return todo doc', (done) => {
       request(app)
       .get(`/todos/${todos[0]._id.toHexString()}`)
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect((res) => {
@@ -94,6 +98,7 @@ describe('GET /todos/:id', () => {
   it('should not return todo doc created by another user', (done) => {
     request(app)
     .get(`/todos/${todos[1]._id.toHexString()}`)
+    .set('Host', 'api.jotdo.com:3000')
     .set('x-auth', users[0].tokens[0].token)
     .expect(404)
     .end(done);
@@ -102,6 +107,7 @@ describe('GET /todos/:id', () => {
   it('should return a 404 if todo not found', (done) => {
       request(app)
       .get(`/todos/${new ObjectID().toHexString()}`)
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[0].tokens[0].token)
       .expect(404)
       .end(done);
@@ -110,6 +116,7 @@ describe('GET /todos/:id', () => {
   it('should return a 404 for non-object ids', (done) => {
       request(app)
       .get('/todos/123')
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[0].tokens[0].token)
       .expect(404)
       .end(done);
@@ -122,6 +129,7 @@ describe('DELETE /todos/:id', () => {
 
       request(app)
       .delete(`/todos/${hexID}`)
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[1].tokens[0].token)
       .expect(200)
       .expect((res) => {
@@ -147,6 +155,7 @@ describe('DELETE /todos/:id', () => {
 
     request(app)
     .delete(`/todos/${hexID}`)
+    .set('Host', 'api.jotdo.com:3000')
     .set('x-auth', users[1].tokens[0].token)
     .expect(404)
     .end(async (err, res) => {
@@ -167,6 +176,7 @@ describe('DELETE /todos/:id', () => {
   it('should return 404 if todo not found', (done) => {
       request(app)
       .delete(`/todos/${new ObjectID().toHexString()}`)
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[1].tokens[0].token)
       .expect(404)
       .end(done);
@@ -176,6 +186,7 @@ describe('DELETE /todos/:id', () => {
   it('should return 404 if object id is invalid', (done) => {
       request(app)
       .delete('/todos/123')
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[1].tokens[0].token)
       .expect(404)
       .end(done);
@@ -189,6 +200,7 @@ describe('PATCH /todos/:id', () => {
 
     request(app)
       .patch(`/todos/${hexId}`)
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[0].tokens[0].token)
       .send({
         completed: true,
@@ -209,6 +221,7 @@ describe('PATCH /todos/:id', () => {
 
     request(app)
       .patch(`/todos/${hexId}`)
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[1].tokens[0].token)
       .send({
         completed: true,
@@ -224,6 +237,7 @@ describe('PATCH /todos/:id', () => {
 
     request(app)
       .patch(`/todos/${hexId}`)
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[1].tokens[0].token)
       .send({
         completed: false,
@@ -243,6 +257,7 @@ describe('GET /users/me', () => {
   it('should return user if authenticated', (done) => {
     request(app)
     .get('/users/me')
+    .set('Host', 'api.jotdo.com:3000')
     .set('x-auth', users[0].tokens[0].token)
     .expect(200)
     .expect((res) => {
@@ -255,6 +270,7 @@ describe('GET /users/me', () => {
   it('should return a 401 if not authenticated', (done) => {
     request(app)
     .get('/users/me')
+    .set('Host', 'api.jotdo.com:3000')
     .expect(401)
     .expect((res) => {
       expect(res.body).toEqual({})
@@ -270,6 +286,7 @@ describe('POST users', () => {
 
     request(app)
     .post('/users')
+    .set('Host', 'api.jotdo.com:3000')
     .send({email, password})
     .expect(200)
     .expect((res) => {
@@ -298,6 +315,7 @@ describe('POST users', () => {
     var password = '1';
     request(app)
     .post('/users')
+    .set('Host', 'api.jotdo.com:3000')
     .send({email, password})
     .expect(400)
     .end(done);
@@ -308,6 +326,7 @@ describe('POST users', () => {
     
     request(app)
     .post('/users')
+    .set('Host', 'api.jotdo.com:3000')
     .send({email: users[0].email, password})
     .expect(400)
     .end(done);
@@ -319,6 +338,7 @@ describe('POST /users/login', () => {
   it('should login user and return auth token', (done) => {
     request(app)
       .post('/users/login')
+      .set('Host', 'api.jotdo.com:3000')
       .send({
         email: users[1].email,
         password: users[1].password
@@ -349,6 +369,7 @@ describe('POST /users/login', () => {
   it('should reject invalid login', (done) => {
     request(app)
       .post('/users/login')
+      .set('Host', 'api.jotdo.com:3000')
       .send({
         email: users[1].email,
         password: users[1].password + '1'
@@ -378,6 +399,7 @@ describe('DELETE /users/me/token', () => {
   it('should remove auth token on logout', (done) => {
     request(app)
       .delete('/users/me/token')
+      .set('Host', 'api.jotdo.com:3000')
       .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .end(async (err, res) => {
